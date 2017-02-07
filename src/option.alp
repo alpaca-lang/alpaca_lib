@@ -1,0 +1,25 @@
+{- Basic option type, otherwise known as "Maybe".
+ -}
+module option
+
+export_type option
+
+export some, map
+
+type option 'a = Some 'a | None
+
+let some a = Some a
+
+let ident x = x
+
+let map f None = None
+
+test "mapping None should produce None" =
+  let f x = x in
+  assert.equal (None) (map f None)
+
+let map f Some a = Some (f a)
+
+test "mapping the identity function to Some x should return Some x" =
+  let f x = x in
+  assert.equal (Some 1) (map f (Some 1))

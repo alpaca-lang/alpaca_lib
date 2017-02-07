@@ -1,0 +1,10 @@
+{- Test helpers, simple assertions.
+ -}
+module assert
+
+export equal
+
+let equal a b =
+  match (a == b) with
+      true -> :ok
+    | false    -> throw (:not_equal, a, b)
