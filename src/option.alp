@@ -1,4 +1,5 @@
-{- Basic option type, otherwise known as "Maybe".
+{- Basic option type.  Safely operate on values that may or may not be
+   undefined.
  -}
 module option
 
@@ -8,10 +9,39 @@ export some, map
 
 type option 'a = Some 'a | None
 
+{- Convenience method to generate a non-empty option.
+ -}
 let some a = Some a
 
-let ident x = x
+test "Applying `some` to a literal value yields a non-empty option" =
+  let o = some 1 in
+  assert.equal Some 1 o
 
+{- Transform the contents of an option with a function to make a new option.
+
+   If the option is `None`, the output will be `None` without running the
+   supplied function.
+   If the option contains something (`Some`) then the result will be a full
+   option, the type of which is dictated by the supplied function.
+
+   For example, the supplied function here will not actually be run, the result
+   of this expression is still `None`:
+
+   ```map (fn x -> x + x) None```
+
+   Whereas here the result will be `4`:
+
+   ```map (fn x -> x + x) Some 2```
+
+   The output type is dependent on the supplied function so if we have a function
+   `int_to_string` with the type `int -> string`, the following will yield an
+   `option string`:
+
+   ```
+   -- the result will be Some "2":
+   map int_to_string Some 2```
+   ```
+ -}
 let map f None = None
 
 test "mapping None should produce None" =
@@ -23,3 +53,11 @@ let map f Some a = Some (f a)
 test "mapping the identity function to Some x should return Some x" =
   let f x = x in
   assert.equal (Some 1) (map f (Some 1))
+
+test "mapping double function should double the option" =
+  let double x = x + x in
+  assert.equal Some 2 (map double (Some 1))
+
+test "doubling a float option should result yield correct results" =
+  let double x = x +. x in
+  assert.equal Some 7.0 (map double Some 3.5)
