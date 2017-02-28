@@ -1,0 +1,17 @@
+{application, alpaca_lib,
+ [{description, "alpaca_lib"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, {'alpaca_lib_app', []}},
+  {applications,
+   [compiler,
+    kernel,
+    stdlib
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {contributors, []},
+  {licenses, []},
+  {links, []}
+ ]}.
