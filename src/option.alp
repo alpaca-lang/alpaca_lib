@@ -7,7 +7,9 @@ export_type option
 
 export some/1, map/2, orElse/2, flatten/1, flatMap/2
 
-type option 'a = Some 'a | None
+type option 'a
+  = Some 'a
+  | None
 
 {- Convenience method to generate a non-empty option.
  -}
@@ -35,12 +37,12 @@ test "Applying `some` to a literal value yields a non-empty option" =
    ```map (fn x -> x + x) Some 2```
 
    The output type is dependent on the supplied function so if we have a function
-   `int_to_string` with the type `int -> string`, the following will yield an
+   `intToString` with the type `int -> string`, the following will yield an
    `option string`:
 
    ```
    -- the result will be Some "2":
-   map int_to_string Some 2```
+   map intToString Some 2```
    ```
  -}
 val map 'a 'b : fn (fn 'a -> 'b) (option 'a) -> option 'b
