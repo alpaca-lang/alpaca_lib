@@ -1,0 +1,82 @@
+{-| Some helpers for working with 2-tuples.
+
+For larger chunks of data, it is best to switch to using records. So
+instead of representing a 3D point as `(3,4,5)` and wondering why there
+are no helper functions, represent it as `{ x = 3, y = 4, z = 5 }` and
+use all the built-in syntax for records.
+-}
+
+module tuple
+
+export first/1, second/1, map_first/2, map_second/2, tuple/2
+
+
+{-| Extract the first value from a tuple.
+
+    first (3, 4) == 3
+    first ("john", "doe") == "john"
+-}
+val first 'a 'b : fn ('a, 'b) -> 'a
+let first (x, _) =
+  x
+
+test "first example 1" =
+  assert.equal (first (3, 4)) 3
+
+test "first example 2" =
+  assert.equal (first ("john", "doe")) "john"
+
+
+{-| Extract the second value from a tuple.
+
+    second (3, 4) == 4
+    second ("john", "doe") == "doe"
+-}
+val second 'a 'b : fn ('a, 'b) -> 'b
+let second (_, y) =
+  y
+
+test "second example 1" =
+  assert.equal (second (3, 4)) 4
+
+test "second example 2" =
+  assert.equal (second ("john", "doe")) "doe"
+
+
+{-| Transform the first value in a tuple.
+
+    map_first (fn x -> x + 1) (0, 0) == (1, 0)
+-}
+val map_first 'a 'b 'aa : fn (fn 'a -> 'aa) ('a, 'b) -> ('aa, 'b)
+let map_first func (x, y) =
+  (func x, y)
+
+test "map_first" =
+  let result = map_first (fn x -> x + 1) (0, 0) in
+  assert.equal result (1, 0)
+
+
+{-| Transform the second value in a tuple.
+
+    map_second (fn x -> x + 1) (0, 0) == (0, 1)
+-}
+val map_second 'a 'b 'bb : fn (fn 'b -> 'bb) ('a, 'b) -> ('a, 'bb)
+let map_second func (x, y) =
+  (x, func y)
+
+test "map_second" =
+  let result = map_second (fn x -> x + 1) (0, 0) in
+  assert.equal result (0, 1)
+
+
+{-| Construct a tuple from 2 values.
+
+    tuple 1 2 == (1, 2)
+-}
+val tuple 'a 'b : fn 'a 'b -> ('a, 'b)
+let tuple x y =
+  (x, y)
+
+test "tuple" =
+  let result = tuple 1 2 in
+  assert.equal result (1, 2)
