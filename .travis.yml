@@ -27,5 +27,6 @@ script:
   - tar xvzf $ALPACA_PKG
   - export ALPACA_ROOT=`pwd`/alpaca-${ALPACA_VERSION_TO_USE}_${TRAVIS_OTP_RELEASE}
   - echo "ALPACA_ROOT is set to ${ALPACA_ROOT}"
+  - rebar3 compile
   - rebar3 eunit
-  - rebar3 ct
+  - rebar3 eunit
