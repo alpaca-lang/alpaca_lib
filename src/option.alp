@@ -5,17 +5,18 @@ module option
 
 export_type option
 
-export some, map
+export some/1, map/2, orElse/2, flatten/1, flatMap/2
 
 type option 'a = Some 'a | None
 
 {- Convenience method to generate a non-empty option.
  -}
+val some 'a : fn 'a -> option 'a
 let some a = Some a
 
 test "Applying `some` to a literal value yields a non-empty option" =
   let o = some 1 in
-  assert.equal Some 1 o
+  assert.equal (Some 1) o
 
 {- Transform the contents of an option with a function to make a new option.
 
@@ -42,6 +43,7 @@ test "Applying `some` to a literal value yields a non-empty option" =
    map int_to_string Some 2```
    ```
  -}
+val map 'a 'b : fn (fn 'a -> 'b) (option 'a) -> option 'b
 let map f None = None
 
 test "mapping None should produce None" =
@@ -61,3 +63,76 @@ test "mapping double function should double the option" =
 test "doubling a float option should result yield correct results" =
   let double x = x +. x in
   assert.equal Some 7.0 (map double Some 3.5)
+
+
+{-| Provide a default value, turning an optional value into a normal
+value.
+
+    ```
+    orElse 100 (Some 42) == 42
+    ```
+    ```
+    orElse 100 None == 100
+    ```
+-}
+val orElse 'a : fn 'a (option 'a) -> 'a
+let orElse default op =
+  match op with
+  | None -> default
+  | Some value -> value
+
+test "orElse of None returns default" =
+  assert.equal (orElse "World" None) "World"
+
+test "orElse of Some returns value" =
+  assert.equal (orElse "World" (Some "Planet")) "Planet"
+
+
+{-| Collapse 2 layers of `option` into one.
+
+    ```
+    flatten (Some (Some 42)) == (Some 42)
+    ```
+    ```
+    flatten (Some None) == None
+    ```
+    ```
+    flatten None == None
+    ```
+-}
+-- val flatten 'a : fn (option (option 'a)) -> option 'a
+let flatten op =
+  match op with
+  | None -> None
+  | Some value -> value
+
+test "flatten of Some Some value" =
+  assert.equal (flatten (Some (Some :one))) (Some :one)
+
+test "flatten of Some None" =
+  assert.equal (flatten (Some None)) None
+
+test "flatten of None" =
+  assert.equal (flatten None) None
+
+
+{-| Chain together many computations that may fail. We only continue
+with the callback if things are going well- if there is a value.
+
+This allows us to chain functions that take a value and return an
+optional value.
+
+This function may also be known as "bind", "andThen" or ">>=" in
+other languages.
+-}
+val flatMap 'a 'b : fn (fn 'a -> option 'b) (option 'a) -> option 'b
+let flatMap func op =
+  flatten (map func op)
+
+test "flatMap with None" =
+  let f x = (Some x + x) in
+  assert.equal (None) (flatMap f None)
+
+test "flatMap with Some x" =
+  let f x = (Some x + x) in
+  assert.equal (Some 2) (flatMap f (Some 1))
