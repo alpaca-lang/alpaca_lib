@@ -14,13 +14,11 @@ cache:
   - .rebar3-$REBAR_VSN
   - /home/travis/.cache/rebar3
 before_install:
-  - if [ ! -f rebar3-$REBAR_VSN/rebar3 ]; then wget --no-check-certificate https://github.com/erlang/rebar3/archive/$REBAR_VSN.tar.gz;
-  fi
+  - if [ ! -f rebar3-$REBAR_VSN/rebar3 ]; then wget --no-check-certificate https://github.com/erlang/rebar3/archive/$REBAR_VSN.tar.gz; fi
   - if [ -f $REBAR_VSN.tar.gz ]; then tar xvzf $REBAR_VSN.tar.gz; fi
   - cd rebar3-$REBAR_VSN
   - if [ ! -f ./rebar3 ]; then ./bootstrap; fi
   - cd ..
-before_script: []
 script:
   - export ALPACA_BASE=alpaca_${TRAVIS_OTP_RELEASE}
   - export ALPACA_PKG=${ALPACA_BASE}.tgz
