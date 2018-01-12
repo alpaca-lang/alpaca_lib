@@ -8,7 +8,7 @@ use all the built-in syntax for records.
 
 module tuple
 
-export first/1, second/1, map_first/2, map_second/2, tuple/2
+export first/1, second/1, mapFirst/2, mapSecond/2, tuple/2
 
 
 {-| Extract the first value from a tuple.
@@ -45,27 +45,27 @@ test "second example 2" =
 
 {-| Transform the first value in a tuple.
 
-    map_first (fn x -> x + 1) (0, 0) == (1, 0)
+    mapFirst (fn x -> x + 1) (0, 0) == (1, 0)
 -}
-val map_first 'a 'b 'aa : fn (fn 'a -> 'aa) ('a, 'b) -> ('aa, 'b)
-let map_first func (x, y) =
+val mapFirst 'a 'b 'aa : fn (fn 'a -> 'aa) ('a, 'b) -> ('aa, 'b)
+let mapFirst func (x, y) =
   (func x, y)
 
-test "map_first" =
-  let result = map_first (fn x -> x + 1) (0, 0) in
+test "mapFirst" =
+  let result = mapFirst (fn x -> x + 1) (0, 0) in
   assert.equal result (1, 0)
 
 
 {-| Transform the second value in a tuple.
 
-    map_second (fn x -> x + 1) (0, 0) == (0, 1)
+    mapSecond (fn x -> x + 1) (0, 0) == (0, 1)
 -}
-val map_second 'a 'b 'bb : fn (fn 'b -> 'bb) ('a, 'b) -> ('a, 'bb)
-let map_second func (x, y) =
+val mapSecond 'a 'b 'bb : fn (fn 'b -> 'bb) ('a, 'b) -> ('a, 'bb)
+let mapSecond func (x, y) =
   (x, func y)
 
-test "map_second" =
-  let result = map_second (fn x -> x + 1) (0, 0) in
+test "mapSecond" =
+  let result = mapSecond (fn x -> x + 1) (0, 0) in
   assert.equal result (0, 1)
 
 
