@@ -1,0 +1,307 @@
+{-| A library for manipulating lists of values.
+-}
+
+module list
+
+export head/1, tail/1, isEmpty/1, map/2, any/2, all/2, reverse/1, length/1,
+       concat/1, filter/2, append/2, foldLeft/3, foldRight/3, sort/1
+
+import_type option.option
+
+
+{-| Extract the first element of a list
+
+      head [3, 4] == (Some 3)
+      head [] == (None)
+-}
+val head 'a : fn (list 'a) -> option 'a
+let head xs =
+  match xs with
+  | [] -> None
+  | x :: _ -> Some x
+
+test "head of list" =
+  assert.equal (head [3, 4]) (Some 3)
+
+test "head of empty list" =
+  assert.equal (head []) (None)
+
+
+{-| Extract the rest of the list.
+
+      tail [1,2,3] == (Some [2,3])
+      tail [] == (None)
+-}
+-- val tail 'a : fn (list 'a) -> option (list 'a) -- TODO: Why doesn't it compile with this typesig?
+let tail xs =
+  match xs with
+  | [] -> None
+  | x :: rest -> Some rest
+
+test "tail of list" =
+  assert.equal (tail [3, 4]) (Some [4])
+
+test "tail of empty list" =
+  assert.equal (tail []) (None)
+
+
+{-| Determine if a list is empty.
+
+      isEmpty [] == True
+      isEmpty [1] == True
+-}
+val isEmpty 'a : fn (list 'a) -> bool
+let isEmpty xs =
+  match xs with
+  | [] -> true
+  | _ -> false
+
+
+test "isEmpty of list" =
+  assert.isFalse (isEmpty [3, 4]) "[3, 4] is not empty"
+
+test "isEmpty of empty list" =
+  assert.isTrue (isEmpty []) "[] is empty"
+
+
+{-| Apply a function to every element of a list.
+
+      map (fn x -> x + 1) [1, 3, 7] == [2, 4, 8]
+
+    So `map func [ a, b, c ]` is the same as `[ func a, func b, func c ]`
+-}
+val map 'a 'b : fn (fn 'a -> 'b) (list 'a) -> list 'b
+let map f xs =
+  beam :lists :map [f, xs] with
+  | ys -> ys
+
+test "map of empty list" =
+  let inc x = x + 1 in
+  assert.equal (map inc []) []
+
+test "map of list" =
+  let inc x = x + 1 in
+  assert.equal (map inc [1, 3, 5, 7, 9]) [2, 4, 6, 8, 10]
+
+
+{-| Determine if any elements satisfy the predicate.
+
+      any isOne [2, 3] == false
+      any isOne [1, 3] == true
+      any isOne [] == false
+-}
+val any 'a : fn (fn 'a -> bool) (list 'a) -> bool
+let any predicate xs =
+  beam :lists :any [predicate, xs] with
+  | result -> result
+
+test "any of empty list" =
+  let isOne x = x == 1 in
+  assert.isFalse (any isOne []) "any of empty list should be false"
+
+test "any of list true" =
+  let isOne x = x == 1 in
+  assert.isTrue (any isOne [0, 3, 4, 5, 1]) "truthy element should be detected"
+
+test "any of list false" =
+  let isOne x = x == 1 in
+  assert.isFalse (any isOne [0, 3, 4, 5, 0]) "no truthy element should be detected"
+
+
+{-| Determine if all elements satisfy the predicate.
+
+      all isOne [1, 1] == true
+      all isOne [1, 2] == false
+      all isOne [] == false
+-}
+val all 'a : fn (fn 'a -> bool) (list 'a) -> bool
+let all predicate xs =
+  beam :lists :all [predicate, xs] with
+  | result -> result
+
+test "all of empty list" =
+  let isOne x = x == 1 in
+  assert.isTrue (all isOne []) "all of empty list should be true"
+
+test "all of list true" =
+  let isOne x = x == 1 in
+  assert.isTrue (all isOne [1, 1, 1, 1, 1, 1, 1, 1]) "all elements are truthy"
+
+test "all of list false" =
+  let isOne x = x == 1 in
+  assert.isFalse (all isOne [1, 1, 1, 1, 1, 1, 1, 0]) "not all elements are truthy"
+
+
+{-| Reverse a list.
+
+    reverse [1, 2, 3, 4] == [4, 3, 2, 1]
+-}
+val reverse 'a : fn (list 'a) -> (list 'a)
+let reverse xs =
+  beam :lists :reverse [xs] with
+  | result -> result
+
+test "reverse empty list" =
+  assert.equal (reverse []) []
+
+test "reverse list" =
+  assert.equal (reverse [1, 2, 3]) [3, 2, 1]
+
+
+{-| Reverse a list.
+
+    reverse [1, 2, 3, 4] == [4, 3, 2, 1]
+-}
+val length 'a : fn (list 'a) -> int
+let length xs =
+  beam :erlang :length [xs] with
+  | result -> result
+
+test "length of empty list" =
+  assert.equal (length []) 0
+
+test "length of list" =
+  assert.equal (length [1, 2, 3]) 3
+
+
+{-| Concatenate a bunch of lists into a single list.
+
+    concat [] == []
+    concat [[1, 2], [3], [4, 5]] == [1, 2, 3, 4, 5]
+-}
+val concat 'a : fn (list (list 'a)) -> (list 'a)
+let concat xxs =
+  beam :lists :concat [xxs] with
+  | result -> result
+
+test "concat of empty list" =
+  assert.equal (concat []) []
+
+test "concat of lists" =
+  assert.equal
+    (concat [[1, 2], [3], [4, 5]])
+    [1, 2, 3, 4, 5]
+
+
+{-| Keep only elements that satisfy the predicate.
+
+      filter (fn x -> x > 4) [10, 2, 3, 4, 5, 6] == [10, 5, 6]
+-}
+val filter 'a : fn (fn 'a -> bool) (list 'a) -> list 'a
+let filter predicate xs =
+  beam :lists :filter [predicate, xs] with
+  | result -> result
+
+test "filter of empty list" =
+  let isBig x = x > 4 in
+  assert.equal (filter isBig []) []
+
+test "filter of list list" =
+  let isBig x = x > 4 in
+  assert.equal
+    (filter isBig [10, 2, 3, 4, 5, 6])
+    [10, 5, 6]
+
+
+{-| Put two lists together.
+
+      append [1, 1, 2] [3, 5, 8] == [1, 1, 2, 3, 5, 8]
+      append ["a", "b"] ["c"] == ["a", "b", "c"]
+
+-}
+val append 'a : fn (list 'a) (list 'a) -> (list 'a)
+let append xs ys =
+  beam :lists :append [xs, ys] with
+  | result -> result
+
+test "append [] [...]" =
+  assert.equal
+    (append [] [1, 2, 3])
+    [1, 2, 3]
+
+test "append [...] []" =
+  assert.equal
+    (append [1, 2, 3] [])
+    [1, 2, 3]
+
+test "append [...] [...]" =
+  assert.equal
+    (append [1, 2, 3] [4, 5, 6])
+    [1, 2, 3, 4, 5, 6]
+
+
+{-| Reduce a list from the right.
+
+      foldRight add 0 [1, 2, 3] == 6
+      foldRight append [1] [[2], [3], [4]] == [2, 3, 4, 1]
+
+    So `foldRight step initialValue [1, 2, 3]` is like saying:
+
+      initialValue
+        |> step 3
+        |> step 2
+        |> step 1
+-}
+-- val foldRight 'a 'b : fn (fn 'a 'b -> 'b) 'b (list 'a) -> 'b -- TODO: The compiler hangs when this is uncommented
+let foldRight func acc ls =
+  beam :lists :foldr [func, acc, ls] with
+  | result -> result
+
+test "foldRight of empty list" =
+  assert.equal
+    (foldRight append [] [])
+    []
+
+test "foldRight of list" =
+  assert.equal
+    (foldRight append [1] [[2], [3], [4]])
+    [2, 3, 4, 1]
+
+
+{-| Reduce a list from the left.
+    This function is tail recursive and generally preferred to `foldRight/3`
+
+      foldLeft add 0 [1, 2, 3] == 6
+      foldLeft append [1] [[2], [3], [4]] == [4, 3, 2, 1]
+
+    So `foldLeft step initialValue [1, 2, 3]` is like saying:
+
+      initialValue
+        |> step 1
+        |> step 2
+        |> step 3
+-}
+-- val foldLeft 'a 'b : fn (fn 'a 'b -> 'b) 'b (list 'a) -> 'b -- TODO: The compiler hangs when this is uncommented
+let foldLeft func acc ls =
+  beam :lists :foldl [func, acc, ls] with
+  | result -> result
+
+test "foldLeft of empty list" =
+  assert.equal
+    (foldLeft append [] [])
+    []
+
+test "foldLeft of list" =
+  assert.equal
+    (foldLeft append [1] [[2], [3], [4]])
+    [4, 3, 2, 1]
+
+
+{-| Sort values from lowest to highest
+
+      sort [3, 1, 5] == [1, 3, 5]
+      sort [:a, :c, :b] == [:a, :b, :c]
+-}
+val sort 'a : fn (list 'a) -> list 'a
+let sort xs =
+  beam :lists :sort [xs] with
+  | result -> result
+
+test "sort of empty list" =
+  assert.equal (sort []) []
+
+test "sort of int list" =
+  assert.equal (sort [3, 1, 5]) [1, 3, 5]
+
+test "sort of atom list" =
+  assert.equal (sort [:a, :c, :b]) [:a, :b, :c]

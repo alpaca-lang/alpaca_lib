@@ -2,9 +2,29 @@
  -}
 module assert
 
-export equal
+export equal/2, isTrue/2, isFalse/2
 
+-- It would be nice to convert this into a pure type rather
+-- than a dummy type with throwing used to signify failure.
+type assertion
+  = bool
+
+val equal 'a : fn 'a 'a -> assertion
 let equal a b =
   match (a == b) with
-      true -> :ok
-    | false    -> throw (:not_equal, a, b)
+  | true -> true
+  | false -> throw (:not_equal, a, b)
+
+
+val isTrue : fn bool string -> assertion
+let isTrue a detail =
+  match a with
+  | true -> true
+  | false -> throw (:not_true, detail)
+
+
+val isFalse : fn bool string -> assertion
+let isFalse a detail =
+  match a with
+  | false -> true
+  | true -> throw (:not_true, detail)
