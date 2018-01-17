@@ -3,8 +3,8 @@
 
 module list
 
-export head/1, tail/1, isEmpty/1, map/2, any/2, all/2, reverse/1, length/1,
-       concat/1, filter/2, append/2, foldLeft/3, foldRight/3, sort/1
+export head/1, unsafeHead/1, tail/1, isEmpty/1, map/2, any/2, all/2, reverse/1,
+       length/1, concat/1, filter/2, append/2, foldLeft/3, foldRight/3, sort/1
 
 import_type option.option
 
@@ -25,6 +25,24 @@ test "head of list" =
 
 test "head of empty list" =
   assert.equal (head []) (None)
+
+{-| Unsafely extract the first element of a list, throwing
+    an exception if the list is empty
+
+      unsafeHead [3, 4] == 3
+      unsafeHead [] -- exception!
+-}
+val unsafeHead 'a : fn (list 'a) -> 'a
+let unsafeHead xs =
+  beam :erlang :hd [xs] with
+  | result -> result
+
+test "unsafeHead of list" =
+  assert.equal (unsafeHead [3, 4]) 3
+
+-- TODO: Test that an exception is thrown.
+-- test "unsafeHead of empty list" =
+--   assert.equal (head []) (None)
 
 
 {-| Extract the rest of the list.
