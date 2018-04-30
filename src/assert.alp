@@ -4,8 +4,6 @@ module assert
 
 export equal/2, isTrue/2, isFalse/2
 
--- It would be nice to convert this into a pure type rather
--- than a dummy type with throwing used to signify failure.
 type assertion
   = bool
 
